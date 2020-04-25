@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+const size = 9
+
 var sudoku = [][]int{{4, 0, 0, 0, 9, 5, 0, 0, 0},
 	{1, 0, 0, 6, 0, 0, 8, 5, 2},
 	{2, 0, 0, 0, 0, 0, 0, 0, 7},
@@ -22,14 +24,14 @@ func printMatrix() {
 func possible(y, x, n int) bool {
 
 	// Check all the numbers in a given row
-	for i := 0; i < 9; i++ {
+	for i := 0; i < size; i++ {
 		if sudoku[y][i] == n {
 			return false
 		}
 	}
 
 	// Check all the numbers in a given column
-	for i := 0; i < 9; i++ {
+	for i := 0; i < size; i++ {
 		if sudoku[i][x] == n {
 			return false
 		}
@@ -50,8 +52,8 @@ func possible(y, x, n int) bool {
 }
 
 func solve() {
-	for y := 0; y < 9; y++ {
-		for x := 0; x < 9; x++ {
+	for y := 0; y < size; y++ {
+		for x := 0; x < size; x++ {
 			// Go ahead only if the box is empty (equals zero)
 			if sudoku[y][x] != 0 {
 				continue
