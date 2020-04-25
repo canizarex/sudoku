@@ -1,8 +1,11 @@
 package main
 
-import "fmt"
+import ( "fmt"
+		 "time"
+)
 
 const size = 9
+var solved [][]int
 
 var sudoku = [][]int{{4, 0, 0, 0, 9, 5, 0, 0, 0},
 	{1, 0, 0, 6, 0, 0, 8, 5, 2},
@@ -14,8 +17,8 @@ var sudoku = [][]int{{4, 0, 0, 0, 9, 5, 0, 0, 0},
 	{0, 0, 0, 4, 0, 0, 1, 7, 9},
 	{0, 0, 6, 1, 0, 0, 2, 0, 0}}
 
-func printMatrix() {
-	for _, row := range sudoku {
+func printMatrix(m [][]int) {
+	for _, row := range m {
 		fmt.Println(row)
 	}
 	fmt.Println("--------------------")
@@ -51,7 +54,7 @@ func possible(y, x, n int) bool {
 	return true
 }
 
-func solve() {
+func solve(sudoku [][]int) {
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
 			// Go ahead only if the box is empty (equals zero)
@@ -64,7 +67,7 @@ func solve() {
 			for n := 1; n < 10; n++ {
 				if possible(y, x, n) {
 					sudoku[y][x] = n
-					solve()
+					solve(sudoku)
 					// At this point the recursive function has returned
 					// because there were no more possibilities so
 					// it takes a step back and re-write the last written
@@ -73,13 +76,17 @@ func solve() {
 				}
 			}
 			// Te recursive function returns here when none n is allowed.
-			return
+			return 
 		}
 	}
-	printMatrix()
+	printMatrix(sudoku)
+	return
 }
 
 func main() {
-	printMatrix()
-	solve()
+	printMatrix(sudoku)
+	start := time.Now()
+	solve(sudoku)
+	elapsed := time.Since(start)
+	fmt.Printf("It took %s to solve the sudoku\n", elapsed)
 }
