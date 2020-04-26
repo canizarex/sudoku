@@ -18,10 +18,28 @@ var sudoku = [][]int{{4, 0, 0, 0, 9, 5, 0, 0, 0},
 	{0, 0, 6, 1, 0, 0, 2, 0, 0}}
 
 func printMatrix(m [][]int) {
-	for _, row := range m {
-		fmt.Println(row)
-	}
-	fmt.Println(strings.Repeat("-", 19))
+	vsep, hsep := "|", "-"
+	for i, row := range m {
+		if i == 0 {
+			fmt.Printf("%s\n", strings.Repeat(hsep, 25))
+		}
+		for i, n := range row {
+			switch {
+			case i == 0:
+				fmt.Printf("%s%2d", vsep, n)
+			case (i+1) % 3 == 0:
+				fmt.Printf("%2d%2s", n, vsep)
+			default:
+				fmt.Printf("%2d", n)
+			}
+		} 
+        switch {
+		case (i+1) % 3 == 0:
+			fmt.Printf("\n%s\n", strings.Repeat(hsep, 25))
+		default:
+			fmt.Println()
+		}
+	} 
 }
 
 func possible(y, x, n int) bool {
@@ -79,10 +97,12 @@ func solve(sudoku [][]int) {
 			return 
 		}
 	}
+	fmt.Println("Sudoku solved:")
 	printMatrix(sudoku)
 }
 
 func main() {
+	fmt.Println("Sudoku to be solved:")
 	printMatrix(sudoku)
 	start := time.Now()
 	solve(sudoku)
