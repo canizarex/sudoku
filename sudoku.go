@@ -1,11 +1,11 @@
 package main
 
 import ( "fmt"
+         "strings"
 		 "time"
 )
 
 const size = 9
-var solved [][]int
 
 var sudoku = [][]int{{4, 0, 0, 0, 9, 5, 0, 0, 0},
 	{1, 0, 0, 6, 0, 0, 8, 5, 2},
@@ -21,7 +21,7 @@ func printMatrix(m [][]int) {
 	for _, row := range m {
 		fmt.Println(row)
 	}
-	fmt.Println("--------------------")
+	fmt.Println(strings.Repeat("-", 19))
 }
 
 func possible(y, x, n int) bool {
@@ -80,7 +80,6 @@ func solve(sudoku [][]int) {
 		}
 	}
 	printMatrix(sudoku)
-	return
 }
 
 func main() {
