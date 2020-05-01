@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-//	"os"
-//	"os/exec"
+// 	"os"
+//	"os/exec" 
 	"strings"
 	"time"
 )
 
 const size = 9
 
-var sudoku = [][]int{{4, 0, 0, 0, 9, 5, 0, 0, 0},
-	{1, 0, 0, 6, 0, 0, 8, 5, 2},
-	{2, 0, 0, 0, 0, 0, 0, 0, 7},
-	{0, 9, 0, 0, 0, 1, 0, 2, 0},
-	{0, 8, 0, 0, 0, 2, 9, 4, 0},
-	{0, 0, 0, 0, 5, 3, 0, 0, 0},
-	{9, 0, 3, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 4, 0, 0, 1, 7, 9},
-	{0, 0, 6, 1, 0, 0, 2, 0, 0}}
+var sudoku = [][]int{{8, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 3, 6, 0, 0, 0, 0, 0},
+	{0, 7, 0, 0, 9, 0, 2, 0, 0},
+	{0, 5, 0, 0, 0, 7, 0, 0, 0},
+	{0, 0, 0, 0, 4, 5, 7, 0, 0},
+	{0, 0, 0, 1, 0, 0, 0, 3, 0},
+	{0, 0, 1, 0, 0, 0, 0, 6, 8},
+	{0, 0, 8, 5, 0, 0, 0, 1, 0},
+	{0, 9, 0, 0, 0, 0, 4, 0, 0}}
 
 func printMatrix(m [][]int) {
 	vsep, hsep := "|", "-"
@@ -81,12 +81,14 @@ var solved bool = false
 func solve(sudoku [][]int) {
 
 	count++
-/* 	cmd := exec.Command("clear")
+/*  
+	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 	printMatrix(sudoku)
 	fmt.Println(count)
-*/
+	time.Sleep(100 * time.Millisecond)
+ */
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
 			// Go ahead only if the box is empty (equals zero)
@@ -105,9 +107,10 @@ func solve(sudoku [][]int) {
 					// it takes a step back and re-write the last written
 					// box with a zero. To avoid undoing all the changes
 					// once solved, we have to add a check first.
-					if !solved {
-						sudoku[y][x] = 0
+					if solved {
+						return
 					}
+					sudoku[y][x] = 0
 				}
 			}
 			// Te recursive function returns here when none n is allowed.
