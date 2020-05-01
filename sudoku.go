@@ -1,8 +1,11 @@
 package main
 
-import ( "fmt"
-         "strings"
-		 "time"
+import (
+	"fmt"
+//	"os"
+//	"os/exec"
+	"strings"
+	"time"
 )
 
 const size = 9
@@ -72,7 +75,18 @@ func possible(y, x, n int) bool {
 	return true
 }
 
+var count int 
+var solved bool = false
+
 func solve(sudoku [][]int) {
+
+	count++
+/* 	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+	printMatrix(sudoku)
+	fmt.Println(count)
+*/
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
 			// Go ahead only if the box is empty (equals zero)
@@ -89,23 +103,30 @@ func solve(sudoku [][]int) {
 					// At this point the recursive function has returned
 					// because there were no more possibilities so
 					// it takes a step back and re-write the last written
-					// box with a zero.
-					sudoku[y][x] = 0
+					// box with a zero. To avoid undoing all the changes
+					// once solved, we have to add a check first.
+					if !solved {
+						sudoku[y][x] = 0
+					}
 				}
 			}
 			// Te recursive function returns here when none n is allowed.
 			return 
 		}
 	}
-	fmt.Println("Sudoku solved:")
-	printMatrix(sudoku)
+	// This point is reached only when all boxes are different than 0.
+	solved = true
 }
 
 func main() {
 	fmt.Println("Sudoku to be solved:")
 	printMatrix(sudoku)
+
 	start := time.Now()
 	solve(sudoku)
 	elapsed := time.Since(start)
-	fmt.Printf("It took %s to solve the sudoku\n", elapsed)
+
+	fmt.Println("Solution:")
+	printMatrix(sudoku)
+	fmt.Printf("It took %s and %d iterations to solve the sudoku\n", elapsed, count)
 }
