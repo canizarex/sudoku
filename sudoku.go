@@ -21,10 +21,13 @@ var sudoku = [][]int{{8, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 9, 0, 0, 0, 0, 4, 0, 0}}
 
 func printMatrix(m [][]int) {
-	vsep, hsep := "|", "-"
+	vsep, hsep, xsep := "|", "-", "+"
+	hline := fmt.Sprintf("%s", strings.Repeat(hsep, 25))
+	hlinex := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vsep, strings.Repeat(hsep,7), xsep)
+
 	for i, row := range m {
 		if i == 0 {
-			fmt.Printf("%s\n", strings.Repeat(hsep, 25))
+			fmt.Printf("%s\n", hline)
 		}
 		for i, n := range row {
 			switch {
@@ -37,8 +40,10 @@ func printMatrix(m [][]int) {
 			}
 		} 
         switch {
+		case i == 8:
+			fmt.Printf("\n%s\n", hline)
 		case (i+1) % 3 == 0:
-			fmt.Printf("\n%s\n", strings.Repeat(hsep, 25))
+			fmt.Printf("\n%s\n", hlinex)
 		default:
 			fmt.Println()
 		}
