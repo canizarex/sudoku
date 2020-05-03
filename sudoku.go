@@ -10,7 +10,18 @@ import (
 
 const size = 9
 
-var sudoku = [][]int{{8, 0, 0, 0, 0, 0, 0, 0, 0},
+var hardest = [][]int{{0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 3, 0, 8, 5},
+	{0, 0, 1, 0, 2, 0, 0, 0, 0},
+	{0, 0, 0, 5, 0, 7, 0, 0, 0},
+	{0, 0, 4, 0, 0, 0, 1, 0, 0},
+	{0, 9, 0, 0, 0, 0, 0, 0, 0},
+	{5, 0, 0, 0, 0, 0, 0, 7, 3},
+	{0, 0, 2, 0, 1, 0, 0, 0, 0},
+	{0, 0, 0, 0, 4, 0, 0, 0, 9}}
+
+
+var mid = [][]int{{8, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 3, 6, 0, 0, 0, 0, 0},
 	{0, 7, 0, 0, 9, 0, 2, 0, 0},
 	{0, 5, 0, 0, 0, 7, 0, 0, 0},
@@ -21,8 +32,8 @@ var sudoku = [][]int{{8, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 9, 0, 0, 0, 0, 4, 0, 0}}
 
 func printMatrix(m [][]int) {
-	vsep, hsep, xsep := "|", "-", "+"
-	hline := fmt.Sprintf("%s", strings.Repeat(hsep, 25))
+	vsep, hsep, xsep := "|", "―", "+"
+	hline := fmt.Sprintf("%[1]s%[2]s%[1]s", " ", strings.Repeat(hsep, 23))
 	hlinex := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vsep, strings.Repeat(hsep,7), xsep)
 
 	for i, row := range m {
@@ -50,7 +61,7 @@ func printMatrix(m [][]int) {
 	} 
 }
 
-func possible(y, x, n int) bool {
+func possible(y, x, n int, sudoku[][]int) bool {
 
 	// Check all the numbers in a given row
 	for i := 0; i < size; i++ {
@@ -104,7 +115,7 @@ func solve(sudoku [][]int) {
 			// and if it is, call the function recursively to
 			// start again.
 			for n := 1; n < 10; n++ {
-				if possible(y, x, n) {
+				if possible(y, x, n, sudoku) {
 					sudoku[y][x] = n
 					solve(sudoku)
 					// At this point the recursive function has returned
@@ -127,6 +138,9 @@ func solve(sudoku [][]int) {
 }
 
 func main() {
+
+	sudoku := mid
+
 	fmt.Println("Sudoku to be solved:")
 	printMatrix(sudoku)
 
