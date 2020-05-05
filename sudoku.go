@@ -10,7 +10,10 @@ import (
 
 const size = 9
 
-var hardest = [][]int{{0, 0, 0, 0, 0, 0, 0, 0, 0},
+type sudoku [9][9]int
+
+var hardest = sudoku{
+	{0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 0, 0, 0, 3, 0, 8, 5},
 	{0, 0, 1, 0, 2, 0, 0, 0, 0},
 	{0, 0, 0, 5, 0, 7, 0, 0, 0},
@@ -18,10 +21,11 @@ var hardest = [][]int{{0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 9, 0, 0, 0, 0, 0, 0, 0},
 	{5, 0, 0, 0, 0, 0, 0, 7, 3},
 	{0, 0, 2, 0, 1, 0, 0, 0, 0},
-	{0, 0, 0, 0, 4, 0, 0, 0, 9}}
+	{0, 0, 0, 0, 4, 0, 0, 0, 9},
+}
 
-
-var mid = [][]int{{8, 0, 0, 0, 0, 0, 0, 0, 0},
+var mid = sudoku{
+	{8, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 3, 6, 0, 0, 0, 0, 0},
 	{0, 7, 0, 0, 9, 0, 2, 0, 0},
 	{0, 5, 0, 0, 0, 7, 0, 0, 0},
@@ -29,14 +33,27 @@ var mid = [][]int{{8, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 0, 1, 0, 0, 0, 3, 0},
 	{0, 0, 1, 0, 0, 0, 0, 6, 8},
 	{0, 0, 8, 5, 0, 0, 0, 1, 0},
-	{0, 9, 0, 0, 0, 0, 4, 0, 0}}
+	{0, 9, 0, 0, 0, 0, 4, 0, 0},
+}
 
-func printMatrix(m [][]int) {
+var easy = sudoku{
+	{4, 0, 0, 0, 9, 5, 0, 0, 0},
+	{1, 0, 0, 6, 0, 0, 8, 5, 2},
+	{2, 0, 0, 0, 0, 0, 0, 0, 7},
+	{0, 9, 0, 0, 0, 1, 0, 2, 0},
+	{0, 8, 0, 0, 0, 2, 9, 4, 0},
+	{0, 0, 0, 0, 5, 3, 0, 0, 0},
+	{9, 0, 3, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 4, 0, 0, 1, 7, 9},
+	{0, 0, 6, 1, 0, 0, 2, 0, 0},
+}
+
+func (s *sudoku) print() {
 	vsep, hsep, xsep := "|", "―", "+"
 	hline := fmt.Sprintf("%[1]s%[2]s%[1]s", " ", strings.Repeat(hsep, 23))
 	hlinex := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vsep, strings.Repeat(hsep,7), xsep)
 
-	for i, row := range m {
+	for i, row := range s {
 		if i == 0 {
 			fmt.Printf("%s\n", hline)
 		}
@@ -61,18 +78,18 @@ func printMatrix(m [][]int) {
 	} 
 }
 
-func possible(y, x, n int, sudoku[][]int) bool {
+func (s *sudoku) isPossible(y, x, n int) bool {
 
 	// Check all the numbers in a given row
 	for i := 0; i < size; i++ {
-		if sudoku[y][i] == n {
+		if s[y][i] == n {
 			return false
 		}
 	}
 
 	// Check all the numbers in a given column
 	for i := 0; i < size; i++ {
-		if sudoku[i][x] == n {
+		if s[i][x] == n {
 			return false
 		}
 	}
@@ -83,7 +100,7 @@ func possible(y, x, n int, sudoku[][]int) bool {
 
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if n == sudoku[y0+i][x0+j] {
+			if n == s[y0+i][x0+j] {
 				return false
 			}
 		}
@@ -94,7 +111,7 @@ func possible(y, x, n int, sudoku[][]int) bool {
 var count int 
 var solved bool = false
 
-func solve(sudoku [][]int) {
+func (s *sudoku) solve() {
 
 	count++
 /*  
@@ -108,25 +125,25 @@ func solve(sudoku [][]int) {
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
 			// Go ahead only if the box is empty (equals zero)
-			if sudoku[y][x] != 0 {
+			if s[y][x] != 0 {
 				continue
 			}
 			// For every n check if it is allowed in a given box
 			// and if it is, call the function recursively to
 			// start again.
 			for n := 1; n < 10; n++ {
-				if possible(y, x, n, sudoku) {
-					sudoku[y][x] = n
-					solve(sudoku)
+				if s.isPossible(y, x, n) {
+					s[y][x] = n
+					s.solve()
 					// At this point the recursive function has returned
 					// because there were no more possibilities so
 					// it takes a step back and re-write the last written
 					// box with a zero. To avoid undoing all the changes
 					// once solved, we have to add a check first.
 					if solved {
-						return
+						return 
 					}
-					sudoku[y][x] = 0
+					s[y][x] = 0
 				}
 			}
 			// Te recursive function returns here when none n is allowed.
@@ -135,20 +152,21 @@ func solve(sudoku [][]int) {
 	}
 	// This point is reached only when all boxes are different than 0.
 	solved = true
+	return 
 }
 
 func main() {
 
-	sudoku := mid
+	mySudoku := &hardest
 
 	fmt.Println("Sudoku to be solved:")
-	printMatrix(sudoku)
+	mySudoku.print()
 
 	start := time.Now()
-	solve(sudoku)
+	mySudoku.solve()
 	elapsed := time.Since(start)
 
 	fmt.Println("Solution:")
-	printMatrix(sudoku)
+	mySudoku.print()
 	fmt.Printf("It took %s and %d iterations to solve the sudoku\n", elapsed, count)
 }
