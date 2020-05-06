@@ -2,58 +2,32 @@ package main
 
 import (
 	"fmt"
-// 	"os"
-//	"os/exec" 
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
 
 const size = 9
 
-type sudoku [9][9]int
+var verbose bool
 
-var hardest = sudoku{
-	{0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 3, 0, 8, 5},
-	{0, 0, 1, 0, 2, 0, 0, 0, 0},
-	{0, 0, 0, 5, 0, 7, 0, 0, 0},
-	{0, 0, 4, 0, 0, 0, 1, 0, 0},
-	{0, 9, 0, 0, 0, 0, 0, 0, 0},
-	{5, 0, 0, 0, 0, 0, 0, 7, 3},
-	{0, 0, 2, 0, 1, 0, 0, 0, 0},
-	{0, 0, 0, 0, 4, 0, 0, 0, 9},
+type sudoku struct {
+	board  [9][9]int
+	count  int
+	solved bool
 }
 
-var mid = sudoku{
-	{8, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 3, 6, 0, 0, 0, 0, 0},
-	{0, 7, 0, 0, 9, 0, 2, 0, 0},
-	{0, 5, 0, 0, 0, 7, 0, 0, 0},
-	{0, 0, 0, 0, 4, 5, 7, 0, 0},
-	{0, 0, 0, 1, 0, 0, 0, 3, 0},
-	{0, 0, 1, 0, 0, 0, 0, 6, 8},
-	{0, 0, 8, 5, 0, 0, 0, 1, 0},
-	{0, 9, 0, 0, 0, 0, 4, 0, 0},
-}
-
-var easy = sudoku{
-	{4, 0, 0, 0, 9, 5, 0, 0, 0},
-	{1, 0, 0, 6, 0, 0, 8, 5, 2},
-	{2, 0, 0, 0, 0, 0, 0, 0, 7},
-	{0, 9, 0, 0, 0, 1, 0, 2, 0},
-	{0, 8, 0, 0, 0, 2, 9, 4, 0},
-	{0, 0, 0, 0, 5, 3, 0, 0, 0},
-	{9, 0, 3, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 4, 0, 0, 1, 7, 9},
-	{0, 0, 6, 1, 0, 0, 2, 0, 0},
+func newSudoku(matrix [9][9]int) sudoku {
+	return sudoku{matrix, 0, false}
 }
 
 func (s *sudoku) print() {
 	vsep, hsep, xsep := "|", "―", "+"
 	hline := fmt.Sprintf("%[1]s%[2]s%[1]s", " ", strings.Repeat(hsep, 23))
-	hlinex := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vsep, strings.Repeat(hsep,7), xsep)
+	hlinex := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vsep, strings.Repeat(hsep, 7), xsep)
 
-	for i, row := range s {
+	for i, row := range s.board {
 		if i == 0 {
 			fmt.Printf("%s\n", hline)
 		}
@@ -61,35 +35,35 @@ func (s *sudoku) print() {
 			switch {
 			case i == 0:
 				fmt.Printf("%s%2d", vsep, n)
-			case (i+1) % 3 == 0:
+			case (i+1)%3 == 0:
 				fmt.Printf("%2d%2s", n, vsep)
 			default:
 				fmt.Printf("%2d", n)
 			}
-		} 
-        switch {
-		case i == 8:
+		}
+		switch {
+		case i == size-1:
 			fmt.Printf("\n%s\n", hline)
-		case (i+1) % 3 == 0:
+		case (i+1)%3 == 0:
 			fmt.Printf("\n%s\n", hlinex)
 		default:
 			fmt.Println()
 		}
-	} 
+	}
 }
 
-func (s *sudoku) isPossible(y, x, n int) bool {
+func (s *sudoku) possible(y, x, n int) bool {
 
 	// Check all the numbers in a given row
 	for i := 0; i < size; i++ {
-		if s[y][i] == n {
+		if s.board[y][i] == n {
 			return false
 		}
 	}
 
 	// Check all the numbers in a given column
 	for i := 0; i < size; i++ {
-		if s[i][x] == n {
+		if s.board[i][x] == n {
 			return false
 		}
 	}
@@ -100,7 +74,7 @@ func (s *sudoku) isPossible(y, x, n int) bool {
 
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if n == s[y0+i][x0+j] {
+			if n == s.board[y0+i][x0+j] {
 				return false
 			}
 		}
@@ -108,56 +82,63 @@ func (s *sudoku) isPossible(y, x, n int) bool {
 	return true
 }
 
-var count int 
-var solved bool = false
-
 func (s *sudoku) solve() {
 
-	count++
-/*  
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
-	printMatrix(sudoku)
-	fmt.Println(count)
-	time.Sleep(100 * time.Millisecond)
- */
+	s.count++
+
+	if verbose {
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+		s.print()
+		fmt.Println(s.count)
+	}
+
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
 			// Go ahead only if the box is empty (equals zero)
-			if s[y][x] != 0 {
+			if s.board[y][x] != 0 {
 				continue
 			}
 			// For every n check if it is allowed in a given box
 			// and if it is, call the function recursively to
 			// start again.
 			for n := 1; n < 10; n++ {
-				if s.isPossible(y, x, n) {
-					s[y][x] = n
+				if s.possible(y, x, n) {
+					s.board[y][x] = n
 					s.solve()
 					// At this point the recursive function has returned
 					// because there were no more possibilities so
 					// it takes a step back and re-write the last written
 					// box with a zero. To avoid undoing all the changes
 					// once solved, we have to add a check first.
-					if solved {
-						return 
+					if s.solved {
+						return
 					}
-					s[y][x] = 0
+					s.board[y][x] = 0
 				}
 			}
 			// Te recursive function returns here when none n is allowed.
-			return 
+			return
 		}
 	}
 	// This point is reached only when all boxes are different than 0.
-	solved = true
-	return 
+	s.solved = true
+	return
 }
 
 func main() {
 
-	mySudoku := &hardest
+	mySudoku := newSudoku(hardest)
+
+	args := os.Args[1:]
+
+	for _, arg := range args {
+		if arg == "-v" {
+			verbose = true
+			break
+		}
+	}
 
 	fmt.Println("Sudoku to be solved:")
 	mySudoku.print()
@@ -168,5 +149,5 @@ func main() {
 
 	fmt.Println("Solution:")
 	mySudoku.print()
-	fmt.Printf("It took %s and %d iterations to solve the sudoku\n", elapsed, count)
+	fmt.Printf("It took %s and %d iterations to solve the sudoku\n", elapsed, mySudoku.count)
 }
