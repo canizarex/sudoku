@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 )
@@ -20,6 +19,10 @@ type sudoku struct {
 
 func newSudoku(matrix [9][9]int) sudoku {
 	return sudoku{matrix, 0, false}
+}
+
+func clear() {
+	fmt.Print("\033[2J \033[H")
 }
 
 func (s *sudoku) print() {
@@ -87,11 +90,10 @@ func (s *sudoku) solve() {
 	s.count++
 
 	if verbose {
-		cmd := exec.Command("clear")
-		cmd.Stdout = os.Stdout
-		cmd.Run()
+		clear()
 		s.print()
 		fmt.Println(s.count)
+		time.Sleep(25 * time.Millisecond)
 	}
 
 	for y := 0; y < size; y++ {
@@ -129,7 +131,7 @@ func (s *sudoku) solve() {
 
 func main() {
 
-	mySudoku := newSudoku(hardest)
+	mySudoku := newSudoku(easy)
 
 	args := os.Args[1:]
 
