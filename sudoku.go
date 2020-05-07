@@ -26,13 +26,14 @@ func clear() {
 }
 
 func (s *sudoku) print() {
-	vsep, hsep, xsep := "|", "―", "+"
-	hline := fmt.Sprintf("%[1]s%[2]s%[1]s", " ", strings.Repeat(hsep, 23))
+	vsep, hsep, xsep := "║", "═", "፨"
+	top := fmt.Sprintf("%s%s%s", "╔", strings.Repeat(hsep, 23), "╗")
+	bottom := fmt.Sprintf("%s%s%s", "╚", strings.Repeat(hsep, 23), "╝")
 	hlinex := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vsep, strings.Repeat(hsep, 7), xsep)
 
 	for i, row := range s.board {
 		if i == 0 {
-			fmt.Printf("%s\n", hline)
+			fmt.Printf("%s\n", top)
 		}
 		for i, n := range row {
 			switch {
@@ -46,7 +47,7 @@ func (s *sudoku) print() {
 		}
 		switch {
 		case i == size-1:
-			fmt.Printf("\n%s\n", hline)
+			fmt.Printf("\n%s\n", bottom)
 		case (i+1)%3 == 0:
 			fmt.Printf("\n%s\n", hlinex)
 		default:
