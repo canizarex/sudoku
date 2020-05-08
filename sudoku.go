@@ -31,17 +31,15 @@ func (s *sudoku) print() {
 		vsep string = "║" 
 		hsep string = "═" 
 		xsep string = "O"
-		corner = []string{"╔", "╔", "╚", "╝"}
+		corner = []string{"╔", "╗", "╚", "╝"}
 	)
 	
 	top := fmt.Sprintf("%s%s%s", corner[0], strings.Repeat(hsep, 23), corner[1])
 	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hsep, 23), corner[3])
 	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vsep, strings.Repeat(hsep, 7), xsep)
 
+	fmt.Printf("%s\n", top)
 	for i, row := range s.board {
-		if i == 0 {
-			fmt.Printf("%s\n", top)
-		}
 		for i, n := range row {
 			switch {
 			case i == 0:
@@ -53,7 +51,7 @@ func (s *sudoku) print() {
 			}
 		}
 		switch {
-		case i == size-1:
+		case i+1 == size:
 			fmt.Printf("\n%s\n", bottom)
 		case (i+1)%3 == 0:
 			fmt.Printf("\n%s\n", middle)
@@ -139,7 +137,7 @@ func (s *sudoku) solve() {
 
 func main() {
 
-	mySudoku := newSudoku(easy)
+	mySudoku := newSudoku(mid)
 
 	args := os.Args[1:]
 
