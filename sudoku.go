@@ -8,6 +8,7 @@ import (
 )
 
 const size = 9
+const subGridSize = size / 3
 
 var verbose bool
 
@@ -28,24 +29,25 @@ func clear() {
 func (s *sudoku) print() {
 	
 	var (
-		vsep string = "║" 
+		hsepMult = size*2+subGridSize*2+1-2
+		p string = "║" 
 		hsep string = "═" 
 		xsep string = "O"
 		corner = []string{"╔", "╗", "╚", "╝"}
 	)
 	
-	top := fmt.Sprintf("%s%s%s", corner[0], strings.Repeat(hsep, 23), corner[1])
-	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hsep, 23), corner[3])
-	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vsep, strings.Repeat(hsep, 7), xsep)
+	top := fmt.Sprintf("%s%s%s", corner[0], strings.Repeat(hsep, hsepMult), corner[1])
+	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hsep, hsepMult), corner[3])
+	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", p, strings.Repeat(hsep, 7), xsep)
 
 	fmt.Printf("%s\n", top)
 	for i, row := range s.board {
 		for i, n := range row {
 			switch {
 			case i == 0:
-				fmt.Printf("%s%2d", vsep, n)
-			case (i+1)%3 == 0:
-				fmt.Printf("%2d%2s", n, vsep)
+				fmt.Printf("%s%2d", p, n)
+			case (i+1)%subGridSize == 0:
+				fmt.Printf("%2d%2s", n, p)
 			default:
 				fmt.Printf("%2d", n)
 			}
@@ -53,7 +55,7 @@ func (s *sudoku) print() {
 		switch {
 		case i+1 == size:
 			fmt.Printf("\n%s\n", bottom)
-		case (i+1)%3 == 0:
+		case (i+1)%subGridSize == 0:
 			fmt.Printf("\n%s\n", middle)
 		default:
 			fmt.Println()
@@ -78,11 +80,11 @@ func (s *sudoku) possible(y, x, n int) bool {
 	}
 
 	// Check a 3:3 subgrid
-	x0 := (x / 3) * 3
-	y0 := (y / 3) * 3
+	x0 := (x / subGridSize) * subGridSize
+	y0 := (y / subGridSize) * subGridSize
 
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 3; j++ {
+	for i := 0; i < subGridSize; i++ {
+		for j := 0; j < subGridSize; j++ {
 			if n == s.board[y0+i][x0+j] {
 				return false
 			}
@@ -111,7 +113,7 @@ func (s *sudoku) solve() {
 			// For every n check if it is allowed in a given box
 			// and if it is, call the function recursively to
 			// start again.
-			for n := 1; n < 10; n++ {
+			for n := 1; n <= size; n++ {
 				if s.possible(y, x, n) {
 					s.board[y][x] = n
 					s.solve()
@@ -132,7 +134,6 @@ func (s *sudoku) solve() {
 	}
 	// This point is reached only when all boxes are different than 0.
 	s.solved = true
-	return
 }
 
 func main() {
