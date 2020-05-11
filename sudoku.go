@@ -11,6 +11,7 @@ const size = 9
 const subGridSize = size / 3
 
 var verbose bool
+var screen = make([]byte, 0 , 605)
 
 type sudoku struct {
 	board  [9][9]int
@@ -26,7 +27,9 @@ func clear() {
 	fmt.Print("\033[2J \033[H")
 }
 
-func (s *sudoku) print() {
+func (s *sudoku) draw() string {
+
+	screen = screen[:0]
 	
 	var (
 		hsepMult = size*2+subGridSize*2+1-2
@@ -36,31 +39,32 @@ func (s *sudoku) print() {
 		corner = []string{"╔", "╗", "╚", "╝"}
 	)
 	
-	top := fmt.Sprintf("%s%s%s", corner[0], strings.Repeat(hsep, hsepMult), corner[1])
+	top := fmt.Sprintf("%s%s%s\n", corner[0], strings.Repeat(hsep, hsepMult), corner[1])
 	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hsep, hsepMult), corner[3])
 	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", p, strings.Repeat(hsep, 7), xsep)
 
-	fmt.Printf("%s\n", top)
+	screen = append(screen, top...)
 	for i, row := range s.board {
 		for i, n := range row {
 			switch {
 			case i == 0:
-				fmt.Printf("%s%2d", p, n)
+				screen = append(screen, fmt.Sprintf("%s%2d", p, n)...)
 			case (i+1)%subGridSize == 0:
-				fmt.Printf("%2d%2s", n, p)
+				screen = append(screen, fmt.Sprintf("%2d%2s", n, p)...)
 			default:
-				fmt.Printf("%2d", n)
+				screen = append(screen, fmt.Sprintf("%2d", n)...)
 			}
 		}
 		switch {
 		case i+1 == size:
-			fmt.Printf("\n%s\n", bottom)
+			screen = append(screen, fmt.Sprintf("\n%s\n", bottom)...)
 		case (i+1)%subGridSize == 0:
-			fmt.Printf("\n%s\n", middle)
+			screen = append(screen, fmt.Sprintf("\n%s\n", middle)...)
 		default:
-			fmt.Println()
+			screen = append(screen, "\n"...)
 		}
 	}
+	return string(screen)
 }
 
 func (s *sudoku) possible(y, x, n int) bool {
@@ -99,9 +103,8 @@ func (s *sudoku) solve() {
 
 	if verbose {
 		clear()
-		s.print()
-		fmt.Println(s.count)
-		time.Sleep(25 * time.Millisecond)
+		fmt.Printf("%s\n%d", s.draw(), s.count)
+		time.Sleep(10 * time.Millisecond)
 	}
 
 	for y := 0; y < size; y++ {
@@ -150,13 +153,13 @@ func main() {
 	}
 
 	fmt.Println("Sudoku to be solved:")
-	mySudoku.print()
+	fmt.Print(mySudoku.draw())
 
 	start := time.Now()
 	mySudoku.solve()
 	elapsed := time.Since(start)
 
 	fmt.Println("Solution:")
-	mySudoku.print()
+	fmt.Print(mySudoku.draw())
 	fmt.Printf("It took %s and %d iterations to solve the sudoku\n", elapsed, mySudoku.count)
 }
