@@ -1,17 +1,23 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 )
 
-const size = 9
-const subGridSize = size / 3
+const (
+	size        = 9
+	subGridSize = 3
+)
 
-var verbose bool
-var screen = make([]byte, 0 , 605)
+var (
+	verbose = flag.Bool("v", false, "Verbose output")
+	sample  = flag.String("s", "easy", "Solve one of the samples: [easy | mid | hardest]")
+
+	screen = make([]byte, 0, 605)
+)
 
 type sudoku struct {
 	board  [9][9]int
@@ -30,18 +36,18 @@ func clear() {
 func (s *sudoku) draw() string {
 
 	screen = screen[:0]
-	
+
 	var (
-		hsepMult = size*2+subGridSize*2+1-2
-		p string = "║" 
-		hsep string = "═" 
-		xsep string = "O"
-		corner = []string{"╔", "╗", "╚", "╝"}
+		hMult         = size*2 + subGridSize*2 + 1 - 2
+		p      string = "║"
+		hSep   string = "═"
+		xSep   string = "O"
+		corner        = []string{"╔", "╗", "╚", "╝"}
 	)
-	
-	top := fmt.Sprintf("%s%s%s\n", corner[0], strings.Repeat(hsep, hsepMult), corner[1])
-	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hsep, hsepMult), corner[3])
-	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", p, strings.Repeat(hsep, 7), xsep)
+
+	top := fmt.Sprintf("%s%s%s\n", corner[0], strings.Repeat(hSep, hMult), corner[1])
+	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hSep, hMult), corner[3])
+	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", p, strings.Repeat(hSep, 7), xSep)
 
 	screen = append(screen, top...)
 	for i, row := range s.board {
@@ -101,7 +107,7 @@ func (s *sudoku) solve() {
 
 	s.count++
 
-	if verbose {
+	if *verbose {
 		clear()
 		fmt.Printf("%s\n%d", s.draw(), s.count)
 		time.Sleep(10 * time.Millisecond)
@@ -121,7 +127,7 @@ func (s *sudoku) solve() {
 					s.board[y][x] = n
 					s.solve()
 					// At this point the recursive function has returned
-					// because there were no more possibilities so
+					// because there are no more possibilities so
 					// it takes a step back and re-write the last written
 					// box with a zero. To avoid undoing all the changes
 					// once solved, we have to add a check first.
@@ -141,16 +147,9 @@ func (s *sudoku) solve() {
 
 func main() {
 
-	mySudoku := newSudoku(mid)
+	flag.Parse()
 
-	args := os.Args[1:]
-
-	for _, arg := range args {
-		if arg == "-v" {
-			verbose = true
-			break
-		}
-	}
+	mySudoku := newSudoku(samples[*sample])
 
 	fmt.Println("Sudoku to be solved:")
 	fmt.Print(mySudoku.draw())
