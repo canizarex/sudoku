@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 )
@@ -13,8 +14,9 @@ const (
 )
 
 var (
-	verbose = flag.Bool("v", false, "Verbose output")
-	sample  = flag.String("s", "easy", "Solve one of the samples: [easy | mid | hardest]")
+	verbose  = flag.Bool("v", false, "Verbose output")
+	sample   = flag.String("s", "easy", "Sample to solve: [easy | mid | hardest]")
+	fileName = flag.String("f", "", "CSV file containing a sudoku")
 
 	screen = make([]byte, 0, 605)
 )
@@ -149,7 +151,13 @@ func main() {
 
 	flag.Parse()
 
-	mySudoku := newSudoku(samples[*sample])
+	var mySudoku sudoku
+
+	if *fileName == "" {
+		mySudoku = newSudoku(samples[*sample])
+	} else {
+		mySudoku = newSudoku(parseCSV(*fileName))
+	}
 
 	fmt.Println("Sudoku to be solved:")
 	fmt.Print(mySudoku.draw())
@@ -157,6 +165,10 @@ func main() {
 	start := time.Now()
 	mySudoku.solve()
 	elapsed := time.Since(start)
+
+	if !mySudoku.solved {
+		log.Fatalf("Error: the sudoku couldn't be solved\n")
+	}
 
 	fmt.Println("Solution:")
 	fmt.Print(mySudoku.draw())
