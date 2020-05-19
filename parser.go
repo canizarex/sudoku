@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/canizarex/go-exercises/sudoku-solver-go/sudoku"
+	"github.com/canizarex/sudoku-solver/sudoku"
 )
 
 func parseCSV(fileName string) [9][9]int {

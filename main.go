@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/canizarex/go-exercises/sudoku-solver-go/sudoku"
+	"github.com/canizarex/sudoku-solver/sudoku"
 )
 
 var (
