@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/csv"
+	"io"
 	"log"
 	"os"
-	"io"
 	"strconv"
-	_ "fmt"
+
+	"github.com/canizarex/go-exercises/sudoku-solver-go/sudoku"
 )
 
 func parseCSV(fileName string) [9][9]int {
@@ -23,7 +24,7 @@ func parseCSV(fileName string) [9][9]int {
 
 	r := csv.NewReader(file)
 
-	for i := 0; i < size; i++ {
+	for i := 0; i < sudoku.Size; i++ {
 		record, err := r.Read()
 
 		switch {

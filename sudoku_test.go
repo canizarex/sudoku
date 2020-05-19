@@ -1,26 +1,30 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/canizarex/go-exercises/sudoku-solver-go/sudoku"
+)
 
 
 func BenchmarkEasy(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		mySudoku := newSudoku(easy)
-		mySudoku.solve()
+		mySudoku := sudoku.New(easy)
+		mySudoku.Solve()
 	}
 }
 
 func BenchmarkMid(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		mySudoku := newSudoku(mid)
-		mySudoku.solve()
+		mySudoku := sudoku.New(mid)
+		mySudoku.Solve()
 	}
 }
 
 func BenchmarkHardest(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		mySudoku := newSudoku(hardest)
-		mySudoku.solve()
+		mySudoku := sudoku.New(hardest)
+		mySudoku.Solve()
 	}
 
 }
