@@ -9,9 +9,10 @@ import (
 )
 
 var (
-	verbose = flag.Bool("v", false, "Verbose output")
-	sample  = flag.String("s", "easy", "Sample to solve: [easy | mid | hardest]")
-	fName   = flag.String("f", "", "CSV file containing a sudoku")
+	verbose  = flag.Bool("v", false, "Verbose output")
+	sample   = flag.String("s", "easy", "Sample to solve: [easy | mid | hardest]")
+	fileName = flag.String("f", "", "CSV file containing a sudoku")
+	fps      = flag.Uint("r", 60, "Refresh rate for the verbose mode")
 )
 
 func main() {
@@ -20,15 +21,17 @@ func main() {
 
 	var mySudoku *sudoku.Sudoku
 
-	if *fName == "" {
+	if *fileName == "" {
 		mySudoku = sudoku.New(samples[*sample])
 	} else {
-		mySudoku = sudoku.New(parseCSV(*fName))
+		mySudoku = sudoku.New(parseCSV(*fileName))
 	}
 
 	if *verbose {
 		mySudoku.Verbose = true
 	}
+
+	mySudoku.Fps = *fps
 
 	fmt.Println("Sudoku to be solved:")
 	fmt.Print(mySudoku.Draw())

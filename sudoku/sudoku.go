@@ -14,42 +14,44 @@ const (
 var clearScr = fmt.Sprint("\033[2J \033[H")
 
 type Sudoku struct {
-	Grid    [9][9]int
-	Count   int
-	Solved  bool
-	Verbose bool
+	Grid            [9][9]int
+	row, col, Count     int
+	Fps             uint
+	Solved, Verbose bool
 }
 
 func New(matrix [9][9]int) *Sudoku {
-	s := new(Sudoku)
-	s.Grid = matrix
-	return s
+	return &Sudoku{Grid: matrix}
 }
 
 func (s *Sudoku) Draw() string {
 
-	screen := make([]byte, 0, 605)
+	screenCap := 605 // Max number of bytes needed to draw the sudoku
+	screen := make([]byte, 0, screenCap)
 
 	var (
-		n1     int      = 2*(Size+BoxSize) - 1
-		n2     int      = 2*BoxSize + 1
+		// Multiplier to draw the top and bottom bar
+		m1 int = 2*(Size+BoxSize) - 1
+		// Multiplier to draw the middle bar
+		m2 int = 2*BoxSize + 1
+
 		vSep   string   = "║"
 		hSep   string   = "═"
 		xSep   string   = "O"
 		corner []string = []string{"╔", "╗", "╚", "╝"}
 	)
 
-	top := fmt.Sprintf("%s%s%s\n", corner[0], strings.Repeat(hSep, n1), corner[1])
-	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hSep, n1), corner[3])
-	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vSep, strings.Repeat(hSep, n2), xSep)
+	top := fmt.Sprintf("%s%s%s\n", corner[0], strings.Repeat(hSep, m1), corner[1])
+	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hSep, m1), corner[3])
+	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vSep, strings.Repeat(hSep, m2), xSep)
 
 	screen = append(screen, top...)
 	for i, row := range s.Grid {
-		for i, n := range row {
+		for j, n := range row {
 			switch {
-			case i == 0:
+			case j == 0:
 				screen = append(screen, fmt.Sprintf("%s%2d", vSep, n)...)
-			case (i+1)%BoxSize == 0:
+			case (j+1)%BoxSize == 0:
 				screen = append(screen, fmt.Sprintf("%2d%2s", n, vSep)...)
 			default:
 				screen = append(screen, fmt.Sprintf("%2d", n)...)
@@ -67,29 +69,29 @@ func (s *Sudoku) Draw() string {
 	return string(screen)
 }
 
-func (s *Sudoku) possible(y, x, n int) bool {
+func (s *Sudoku) possible(row, col, n int) bool {
 
 	// Check all the numbers in a given row
 	for i := 0; i < Size; i++ {
-		if s.Grid[y][i] == n {
+		if s.Grid[row][i] == n {
 			return false
 		}
 	}
 
 	// Check all the numbers in a given column
 	for i := 0; i < Size; i++ {
-		if s.Grid[i][x] == n {
+		if s.Grid[i][col] == n {
 			return false
 		}
 	}
 
 	// Check a 3:3 box
-	x0 := (x / BoxSize) * BoxSize
-	y0 := (y / BoxSize) * BoxSize
+	c0 := (col / BoxSize) * BoxSize
+	r0 := (row / BoxSize) * BoxSize
 
 	for i := 0; i < BoxSize; i++ {
 		for j := 0; j < BoxSize; j++ {
-			if n == s.Grid[y0+i][x0+j] {
+			if n == s.Grid[r0+i][c0+j] {
 				return false
 			}
 		}
@@ -103,37 +105,34 @@ func (s *Sudoku) Solve() {
 
 	if s.Verbose {
 		fmt.Printf("%s%s\n%d\n", clearScr, s.Draw(), s.Count)
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(time.Second / time.Duration(s.Fps))
 	}
 
-	for y := 0; y < Size; y++ {
-		for x := 0; x < Size; x++ {
+	for row := s.row; row < Size; row++ {
+		for col := s.col; col < Size; col++ {
 			// Go ahead only if the cell is empty (equals zero)
-			if s.Grid[y][x] != 0 {
+			if s.Grid[row][col] != 0 {
 				continue
 			}
 			// For every n check if it is possible in a given cell
-			// and if it is, call the function recursively to
-			// start again.
+			// and if it is, mark the position and call the function
+			// recursively to start again.
 			for n := 1; n <= Size; n++ {
-				if s.possible(y, x, n) {
-					s.Grid[y][x] = n
+				if s.possible(row, col, n) {
+					s.Grid[row][col] = n
+					s.row, s.col = row, col
 					s.Solve()
-					// At this point the recursive function has returned
-					// because there are no more possibilities so
-					// it takes a step back and re-write the last written
-					// cell with a zero. To avoid undoing all the changes
-					// once solved, it's necessary to check if it's already
-					// solved.
-					if s.Solved {
-						return
-					}
-					s.Grid[y][x] = 0
 				}
 			}
+			if s.Solved {
+				return
+			}
+			s.Grid[row][col] = 0
 			// Te recursive function returns here when none n is allowed.
 			return
 		}
+		// Reset the position of s.col before going to the next s.row
+		s.col = 0
 	}
 	// This point is reached only when all the cells are different than 0.
 	s.Solved = true

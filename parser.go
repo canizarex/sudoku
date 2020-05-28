@@ -36,9 +36,9 @@ func parseCSV(fileName string) [9][9]int {
 		}
 
 		inner := [9]int{}
-		for i, str := range record {
+		for j, str := range record {
 			n, _ := strconv.Atoi(str)
-			inner[i] = n
+			inner[j] = n
 		}
 		matrix[i] = inner
 	}
