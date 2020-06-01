@@ -11,7 +11,24 @@ const (
 	BoxSize = 3
 )
 
-var clearScr = fmt.Sprint("\033[2J \033[H")
+var (
+		// Chars to clear the screen and move the cursor in *nix
+		clearScr = fmt.Sprint("\033[2J \033[H")
+
+		// Related to draw():
+		// Multiplier to draw the top and bottom bar
+		m1 int = 2*(Size+BoxSize) - 1
+		// Multiplier to draw the middle bar
+		m2 int = 2*BoxSize + 1
+
+		// Different sepatators to represent a sodoku
+		vSep   string   = "║"
+		vSep2  string   = "|"
+		hSep   string   = "═"
+		hSep2  string   = "-"
+		xSep   string   = "+"
+		corner []string = []string{"╔", "╗", "╚", "╝"}
+)
 
 type Sudoku struct {
 	Grid            [9][9]int
@@ -28,20 +45,6 @@ func (s *Sudoku) Draw() string {
 
 	screenCap := 605 // Max number of bytes needed to draw the sudoku
 	screen := make([]byte, 0, screenCap)
-
-	var (
-		// Multiplier to draw the top and bottom bar
-		m1 int = 2*(Size+BoxSize) - 1
-		// Multiplier to draw the middle bar
-		m2 int = 2*BoxSize + 1
-
-		vSep   string   = "║"
-		vSep2  string   = "|"
-		hSep   string   = "═"
-		hSep2  string   = "-"
-		xSep   string   = "+"
-		corner []string = []string{"╔", "╗", "╚", "╝"}
-	)
 
 	top := fmt.Sprintf("%s%s%s\n", corner[0], strings.Repeat(hSep, m1), corner[1])
 	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hSep, m1), corner[3])

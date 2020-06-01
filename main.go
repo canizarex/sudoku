@@ -55,7 +55,11 @@ func main() {
 
 	switch {
 	case *sample != "":
-		mySudoku = sudoku.New(samples[*sample])
+		matrix, ok := samples[*sample]
+		if ! ok {
+			log.Fatalf("Couldn't found a sample called %q", *sample)
+		}
+		mySudoku = sudoku.New(*matrix)
 	case *fileName != "":
 		file, err := os.Open(*fileName)
 		if err != nil {

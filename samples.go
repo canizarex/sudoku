@@ -1,6 +1,10 @@
 package main
 
-var samples = map[string][9][9]int{"hardest": hardest, "mid": mid, "easy": easy}
+var samples = map[string]*[9][9]int{
+	"hardest": &hardest, 
+	"mid": &mid, 
+	"easy": &easy,
+}
 
 var hardest = [9][9]int{
 	{0, 0, 0, 0, 0, 0, 0, 0, 0},
