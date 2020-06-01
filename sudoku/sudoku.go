@@ -15,7 +15,7 @@ var clearScr = fmt.Sprint("\033[2J \033[H")
 
 type Sudoku struct {
 	Grid            [9][9]int
-	row, col, Count     int
+	row, col, Count int
 	Fps             uint
 	Solved, Verbose bool
 }
@@ -36,14 +36,16 @@ func (s *Sudoku) Draw() string {
 		m2 int = 2*BoxSize + 1
 
 		vSep   string   = "║"
+		vSep2  string   = "|"
 		hSep   string   = "═"
-		xSep   string   = "O"
+		hSep2  string   = "-"
+		xSep   string   = "+"
 		corner []string = []string{"╔", "╗", "╚", "╝"}
 	)
 
 	top := fmt.Sprintf("%s%s%s\n", corner[0], strings.Repeat(hSep, m1), corner[1])
 	bottom := fmt.Sprintf("%s%s%s", corner[2], strings.Repeat(hSep, m1), corner[3])
-	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vSep, strings.Repeat(hSep, m2), xSep)
+	middle := fmt.Sprintf("%[1]s%[2]s%[3]s%[2]s%[3]s%[2]s%[1]s", vSep, strings.Repeat(hSep2, m2), xSep)
 
 	screen = append(screen, top...)
 	for i, row := range s.Grid {
@@ -51,8 +53,10 @@ func (s *Sudoku) Draw() string {
 			switch {
 			case j == 0:
 				screen = append(screen, fmt.Sprintf("%s%2d", vSep, n)...)
-			case (j+1)%BoxSize == 0:
+			case (j + 1) == Size:
 				screen = append(screen, fmt.Sprintf("%2d%2s", n, vSep)...)
+			case (j+1)%BoxSize == 0:
+				screen = append(screen, fmt.Sprintf("%2d%2s", n, vSep2)...)
 			default:
 				screen = append(screen, fmt.Sprintf("%2d", n)...)
 			}
@@ -69,7 +73,7 @@ func (s *Sudoku) Draw() string {
 	return string(screen)
 }
 
-func (s *Sudoku) possible(row, col, n int) bool {
+func (s *Sudoku) isPossible(row, col, n int) bool {
 
 	// Check all the numbers in a given row
 	for i := 0; i < Size; i++ {
@@ -110,7 +114,7 @@ func (s *Sudoku) Solve() {
 
 	for row := s.row; row < Size; row++ {
 		for col := s.col; col < Size; col++ {
-			// Go ahead only if the cell is empty (equals zero)
+			// Check if the cell is empty (equals zero)
 			if s.Grid[row][col] != 0 {
 				continue
 			}
@@ -118,7 +122,7 @@ func (s *Sudoku) Solve() {
 			// and if it is, mark the position and call the function
 			// recursively to start again.
 			for n := 1; n <= Size; n++ {
-				if s.possible(row, col, n) {
+				if s.isPossible(row, col, n) {
 					s.Grid[row][col] = n
 					s.row, s.col = row, col
 					s.Solve()
@@ -128,7 +132,7 @@ func (s *Sudoku) Solve() {
 				return
 			}
 			s.Grid[row][col] = 0
-			// Te recursive function returns here when none n is allowed.
+			// The recursive function returns here when none n is allowed.
 			return
 		}
 		// Reset the position of s.col before going to the next s.row

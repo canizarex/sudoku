@@ -19,7 +19,7 @@ var (
 
 	delimiter = flag.String("d", " ", "delimiter used to parse the input")
 	fileName  = flag.String("f", "", "file containing a sudoku")
-	fps       = flag.Uint("r", 60, "refresh rate for the verbose mode")
+	fps       = flag.Uint("r", 120, "refresh rate for the verbose mode")
 	sample    = flag.String("s", "", "sample to solve: [easy | mid | hardest]")
 	verbose   = flag.Bool("v", false, "verbose output")
 )
@@ -34,7 +34,7 @@ func parseInput(r io.Reader) [9][9]int {
 		row := strings.Split(strings.TrimSpace(scanner.Text()), *delimiter)
 
 		if len(row) != sudoku.Size {
-			log.Fatal("Error: The sudoku must have 9 columns")
+			log.Fatal(fmt.Errorf("Error: The sudoku must have %d columns and %[1]d rows", sudoku.Size))
 		}
 
 		inner := [9]int{}
